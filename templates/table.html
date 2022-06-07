@@ -1,0 +1,210 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+</style>
+
+<div class="section" id="vue-target" v-cloak>
+  
+  <div class="table_header">
+    <div>
+      [[=planner['id']]]
+    </div>
+    <div>
+      <h1 class="title">[[=planner['name']]] <span style="font-size: large; font-weight: normal; font-style: italic; vertical-align: middle;" v-if="edit_mode">(Editing)</span></h1>
+    </div>
+    <div>
+      [[if planner['status'] == "True":]]
+      <div class="block" v-if="edit_mode">
+      <button class="button is-primary" @click="save_table_changes">Save</button>
+      <button class="button is-warning" @click="cancel_edits">Cancel</button>
+      </div>
+      <div class="block" v-else>
+        
+        <button class="button is-warning" @click="toggle_edit_mode" title="Edit Planner">
+          <span class="icon"><i class="fa fa-fw fa-edit"></i></span>
+        </button>
+        <a class="button" href="[[=URL('archive', planner['id'])]]">
+          ARCHIVE
+        </a>
+        [[else:]]
+        <a class="button" href="[[=URL('unarchive', planner['id'])]]">
+          UNARCHIVE
+        </a>
+        [[pass]]
+      </div>
+    </div>
+  </div>
+  
+  
+
+  <!-- TABS -->
+  <div class="container block">
+    <div id="tabs-with-content">
+      <div class="tabs">
+        <ul>
+          <li v-bind:class="{ 'is-active': isActive == 'classes' }"><a v-on:click="isActive = 'classes'">Classes</a></li>
+          <li v-bind:class="{ 'is-active': isActive == 'instructors' }"><a v-on:click="isActive = 'instructors'">Instructors</a></li>
+        </ul>        
+      </div>
+      <!-- TAB CONTENTS -->
+      
+        <section class="tab-content">
+          <!-- CLASSES TAB -->
+          
+          <div class="content" v-bind:class="{ 'is-active': isActive == 'classes' }" v-if="isActive == 'classes'">
+            <div v-if="add_mode" class="container block">
+              <div class="title">Add Class</div>
+              <div class="form">
+          
+                <!-- This looks like a form, but is not.  We just need the inputs. -->
+                <div class="field">
+                  <label class="label">Class Name:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_class_name" class="input">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Class Type:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_class_type" class="input">
+                  </div>
+                </div>
+                
+                <div class="field">
+                  <div class="control">
+                    <input type="submit" @click="add_class" value="Add" class="button is-primary">
+                    <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+            <h1 class="title">Classes</h1>
+            <table class="table is-striped is-fullwidth">
+              <tr>
+                <th>Class Name</th>
+                <th>Class Type</th>
+                <th>Fall</th>
+                <th>Winter</th>
+                <th>Spring</th>
+                <th>Summer 1</th>
+                <th>Summer 2</th>
+                <th>Course Time</th>
+                <th>Actual Times</th>
+                <th></th>
+              </tr>
+              <tr v-for="r in rows">
+                <td v-for="fn in ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times']">
+                  <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
+                    
+                    <input type="text" class="input" v-model="r[fn]"
+                          :class="{'is-focused': r._state[fn] === 'edit',
+                                  'is-static': r._state[fn] === 'clean'}"
+                          :readonly="r._state[fn] === 'clean'"
+                          @click="start_edit(rows, r._idx, fn)"
+                          @blur="stop_edit(rows, r._idx, fn)"
+                    />
+  
+                  </div>
+                </td>
+                <td><button @click="delete_class(r._idx)" class="button is-danger" v-if="edit_mode">
+                  <i class="fa fa-trash"></i></button></td>
+              </tr>
+            </table>
+            <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
+              <i class="fa fa-plus fa-fw"></i> Add Class
+            </button>
+          </section>
+          </div>
+        <section class="tab-content">
+          <!-- INSTRUCTORS TAB -->
+          
+          <div class="content" v-bind:class="{ 'is-active': isActive == 'instructors' }" v-if="isActive == 'instructors'">
+            <div v-if="add_mode" class="container block">
+              <div class="title">Add Instructor</div>
+              <div class="form">
+          
+                <!-- This looks like a form, but is not.  We just need the inputs. -->
+                <div class="field">
+                  <label class="label">Instructor Name:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_instructor_name" class="input">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Instructor Email:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_instructor_email" class="input">
+                  </div>
+                </div>
+                
+                <div class="field">
+                  <div class="control">
+                    <input type="submit" @click="add_instructor" value="Add" class="button is-primary">
+                    <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <h1 class="title">Instructors</h1>
+            <table class="table is-striped is-fullwidth">
+              <tr>
+                <th>Instructor Name</th>
+                <th>Email</th>
+                <th>Fall</th>
+                <th>Winter</th>
+                <th>Spring</th>
+                <th>Summer 1</th>
+                <th>Summer 2</th>
+                <th></th>
+              </tr>
+              <tr v-for="r in rows_i">
+                <td v-for="fn in ['name', 'email', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
+                  <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
+                    
+                    <input type="text" class="input" v-model="r[fn]"
+                          :class="{'is-focused': r._state[fn] === 'edit',
+                                  'is-static': r._state[fn] === 'clean'}"
+                          :readonly="r._state[fn] === 'clean'"
+                          @click="start_edit(rows_i, r._idx, fn)"
+                          @blur="stop_edit(rows_i, r._idx, fn)"
+                    />
+                  </div>
+                </td>
+                <!-- <td><a  href="edit_classes.html" class="button is-warning" v-if="edit_mode">
+                  <i class="fa fa-edit"></i></a></td>
+                <td><button  class="button is-danger" v-if="edit_mode">
+                  <i class="fa fa-trash"></i></button></td> -->
+              </tr>
+              </table>
+              <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
+                <i class="fa fa-plus fa-fw"></i> Add Instructor
+              </button>
+            </table>
+          </div> 
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  let load_instructors_url = "[[=XML(load_instructors_url)]]";
+  let load_classes_url = "[[=XML(load_classes_url)]]";
+  let add_instructor_url = "[[=XML(add_instructors_url)]]";
+  let add_class_url = "[[=XML(add_class_url)]]";
+  let delete_class_url = "[[=XML(delete_class_url)]]";
+  let edit_class_url = "[[=XML(edit_class_url)]]";
+  let edit_classes_url = "[[=XML(edit_classes_url)]]";
+  let edit_instructor_url = "[[=XML(edit_instructor_url)]]";
+  let update_tables_url = "[[=XML(update_tables_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]

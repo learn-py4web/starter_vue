@@ -1,5 +1,26 @@
 /*! bulma.io v0.9.2 | MIT License | github.com/jgthms/bulma */
 /* Bulma Utilities */
+.table_header{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.planner__tiles{
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.5); 
+    padding: 20px; 
+    margin: 10px; 
+    display: flex; 
+    flex-direction: column; 
+    border-radius: 10px; 
+    border: 2px solid #000000;
+    
+  }
+  .planner__tiles:hover{
+    box-shadow: 0px 0px;
+    cursor: pointer;
+    background-color: #eeeeee;
+  }
 .button, .input, .textarea, .select select, .file-cta,
 .file-name, .pagination-previous,
 .pagination-next,

@@ -1,21 +1,218 @@
-[[extend 'layout.html']]
-
+[[extend 'layout.html']] [[if user_email == None:]]
+<head>
 <style>
-[v-cloak] {
-     display: none;
-}
+  
 </style>
-
-
-<div class="section" id="vue-target" v-cloak>
-  <!-- Put here your Vue.js template -->
+</head>
+<div
+  class="container level is-max-desktop"
+  style="height: 80vh; display: flex; align-content: center"
+>
+  <div
+    class="container .is-grey-lighter"
+    style="display: flex; flex-direction: column; padding: 50px"
+  >
+    <div class="title is-2">Welcome to the UCSC Ciriculum Leave Planner</div>
+    <div class="subtitle is-5">
+      The CLP is used to help the admin and professors at ucsc to more
+      effectively plan and distribute course assignments to instructors
+      throughout the university.
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+        justify-content: center;
+      "
+    >
+      <div style="margin: 10px">
+        <a class="button is-large is-info" href="[[=URL('auth/register')]]"
+          >Sign up</a
+        >
+      </div>
+      <div style="margin: 10px">
+        <a class="button is-large is-success" href="[[=URL('auth/login')]]"
+          >Log in</a
+        >
+      </div>
+    </div>
+  </div>
 </div>
+[[else:]]
+<div
+  class="container level is-max-desktop"
+  style="height: auto; display: flex; align-content: center"
+>
+  <div
+    class="container .is-grey-lighter"
+    style="display: flex; flex-direction: column; padding: 50px"
+  >
+    <div class="title is-2">Welcome to the UCSC Ciriculum Leave Planner</div>
+    <div class="subtitle is-5">
+      The CLP is used to help the admin and professors at ucsc to more
+      effectively plan and distribute course assignments to instructors
+      throughout the university.
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+      "
+    >
+    <div class="subtitle is-5" style="
+    display: flex;
+    flex-direction: row;
+    white-space: pre;
+    ">Hello, <div class = "has-text-link">[[=user_name]]</div> You are currently logged in as a <div class = "has-text-danger">[[=user_perm]]</div></div>
+      </div>
+      <div style="margin: 10px">
+        [[if user_perm == "admin":]]
+        [[if true_perm == "admin":]]
+        Change Permissions to: <div class="tabs is-toggle">
+          <ul>
+            <li class="is-active">
+              <a>
+                <span>Admin</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm', 'manager')]]">
+                
+                <span>Manager</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm', 'instructor')]]">
+                
+                <span>Instructor</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        [[pass]]
+          <div style="margin: 5% 0%;">
+            <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
+              <div class="title is-4" style="margin-bottom: 2%;">Current Planners</div> 
+              <a class="button is-success" href="[[=URL('add_table')]]">Add New</a>
+            </div>
+            <hr class="rounded" style="margin: 0px;">
+            <div style="display: flex;">
+              [[for table in active_tables:]]
+                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                  <div class="title is-4">[[=table["name"]]]</div>
+                  <div class="subtitle is-6" style="
+                  display: flex;
+                  flex-direction: row;
+                  white-space: pre;
+                  ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
+                    [[pass]]
+                    
+                  </div>
+                  <div>Number of Classes: [[=table["class_num"]]]</div>
+                  <div>Number of instructors: [[=table["instruct_num"]]]</div>
+                  
+                  
+                  
+                </a>
+              [[pass]]
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
+                <div class="title is-4" style="margin-bottom: 2%;">Archived Planners</div> 
+              </div>
+              <hr class="rounded" style="margin: 0px;">
+              <div style="display: flex;">
+                [[for table in inactive_tables:]]
+                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                    <div class="title is-4">[[=table["name"]]]</div>
+                    <div class="subtitle is-6" style="
+                    display: flex;
+                    flex-direction: row;
+                    white-space: pre;
+                    ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
+                      [[pass]]
+                      
+                    </div>
+                    <div>Number of Classes: [[=table["class_num"]]]</div>
+                    <div>Number of instructors: [[=table["instruct_num"]]]</div>
+                    
+                    
+                    
+                  </a>
+                [[pass]]
+              </div>
+          </div>
+          </div>
+        [[elif user_perm == "manager":]]
+        <div>
+          <div class="tabs is-toggle">
+            <ul>
+              <li >
+                <a href="[[=URL('change_perm','admin')]]">
+                  <span>Admin</span>
+                </a>
+              </li>
+              <li class="is-active">
+                <a href="[[=URL('change_perm','manager')]]">
+                  
+                  <span>Manager</span>
+                </a>
+              </li>
+              <li>
+                <a href="[[=URL('change_perm','instructor')]]">
+                  
+                  <span>Instructor</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          blah
+        </div>
+        [[else:]]
+        [[if true_perm == "admin":]]
+        Change Permissions to: <div class="tabs is-toggle">
+          <ul>
+            <li>
+              <a href="[[=URL('change_perm','admin')]]">
+                <span>Admin</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm','manager')]]">
+                
+                <span>Manager</span>
+              </a>
+            </li>
+            <li class="is-active">
+              <a href="[[=URL('change_perm','instructor')]]">
+                
+                <span>Instructor</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        [[pass]]
+        <div style="margin: 5% 0%;">
+          <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
+            <div class="title is-4" style="margin-bottom: 2%;">Current Assignments</div> 
+          </div>
+          <hr class="rounded" style="margin: 0px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
+              <div class="title is-4" style="margin-bottom: 2%;">Archived Assignments</div> 
+            </div>
+            <hr class="rounded" style="margin: 0px;">
+        </div>
+        </div>
+        [[pass]]
 
-
-[[block page_scripts]]
-<!-- Loads the index-specific js for Vue -->
-<script>
-  let my_callback_url = "[[=XML(my_callback_url)]]";
-</script>
-<script src="js/index.js"></script>
-[[end]]
+        <a class="button is-danger" href="[[=URL('auth/logout')]]"
+          >Sign out</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+[[pass]]
